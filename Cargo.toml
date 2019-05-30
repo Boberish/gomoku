@@ -1,0 +1,10 @@
+[package]
+name = "updatedgomoku"
+version = "0.1.0"
+authors = ["boberish <boberish@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+ego-tree = "0.6.0"
+rand = "0.6"
