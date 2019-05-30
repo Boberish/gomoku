@@ -1,4 +1,4 @@
-fn find_good_node(root: NodeRef<McNode>, path: Vec<u16>) -> (NodeRef<McNode>,Vec<u16>)  {
+fn find_good_node(root: NodeRef<McNode>, path: Vec<u16>) -> (NodeRef<McNode>, Vec<u16>)  {
     match root {
         mut node => {
             if node.has_children(){
@@ -55,7 +55,9 @@ fn main() {
 
     // for t in 0..100 {
     let mut path: Vec<u16> = Vec::new();
-     find_good_node(passed_root, path);
+    let (node, path) = find_good_node(passed_root, path);
+	println!("node: {:#?}", node)
+	println!("path: {:#?}", path)
     // let a:i32 = 0;
     // let b = 1;
 
