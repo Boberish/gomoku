@@ -10,9 +10,10 @@ pub trait TBoard {
 	fn start(&self) -> Board;
 	fn next_state(&self, play: &Coords) -> Board;
 	fn winner(&self, c: &Coords) -> i8;
-	fn current_player(&self) -> u8;
+	fn current_player(&self) -> i8;
 	fn display(&self);
 	fn if_over(&self) -> bool;
+	// fn winnergomo()
 }
 
 impl TBoard for Board {
@@ -55,143 +56,144 @@ impl TBoard for Board {
 		*self
 	}
 
-	// fn winner(&self, coords: &Coords) -> i8 {
-	// 	// let board = self.board;
-	// 	// println!("this is the one ime lidk {}","1");
-	// 	// Horizontal and verical check
-	// 	// println!("------------------------");
+	fn winner(&self, coords: &Coords) -> i8 {
+		// let board = self.board;
+		// println!("this is the one ime lidk {}","1");
+		// Horizontal and verical check
+		// println!("------------------------");
+		// self.display();
+		// println!("------------------------");
+		for i in 0..3 {
+			if self[i][0] == self[i][1] && self[i][0] == self[i][2] && self[i][0] != '.' {
+				return if self[i][0] == 'x' { 1 } else { 2 };
+			}
+			if self[0][i] == self[1][i] && self[0][i] == self[2][i] && self[0][i] != '.' {
+				return if self[0][i] == 'x' { 1 } else { 2 };
+			}
+		}
+
+		//Diagonal check
+		if self[0][0] == self[1][1] && self[0][0] == self[2][2] && self[0][0] != '.' {
+			return if self[0][0] == 'x' { 1 } else { 2 };
+		}
+		if self[0][2] == self[1][1] && self[0][2] == self[2][0] && self[0][2] != '.' {
+			return if self[0][2] == 'x' { 1 } else { 2 };
+		}
+
+		// No one is winning yet
+		0
+	}
+	
+
+	// fn winnergomo(&self, c: &Coords) -> i8 {
 	// 	// self.display();
-	// 	// println!("------------------------");
-	// 	for i in 0..3 {
-	// 		if self[i][0] == self[i][1] && self[i][0] == self[i][2] && self[i][0] != '.' {
-	// 			return if self[i][0] == 'x' { 1 } else { 2 };
+	// 	let player: char = self[c.0 as usize][c.1 as usize];
+	// 	// let mut c: Coords = coords.clone();
+	// 	// let d: Coords = (c.0 as usize,c.1 as usize)
+	// 	let mut count: i8 = 0;
+	// 	//check right
+	// 	for i in 1..5 {
+	// 		if c.1 + i <= 18 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[c.0 as usize][(c.1 + i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
 	// 		}
-	// 		if self[0][i] == self[1][i] && self[0][i] == self[2][i] && self[0][i] != '.' {
-	// 			return if self[0][i] == 'x' { 1 } else { 2 };
+	// 	}
+	// 	// check left
+	// 	for i in 1..5 {
+	// 		if c.1 - i >= 0 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[c.0 as usize][(c.1 - i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
 	// 		}
 	// 	}
-
-	// 	//Diagonal check
-	// 	if self[0][0] == self[1][1] && self[0][0] == self[2][2] && self[0][0] != '.' {
-	// 		return if self[0][0] == 'x' { 1 } else { 2 };
+	// 	count = 0;
+	// 	//check down
+	// 	for i in 1..5 {
+	// 		if c.0 + i <= 18  {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 + i) as usize][c.1 as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
 	// 	}
-	// 	if self[0][2] == self[1][1] && self[0][2] == self[2][0] && self[0][2] != '.' {
-	// 		return if self[0][2] == 'x' { 1 } else { 2 };
+	// 	// check up
+	// 	for i in 1..5 {
+	// 		if c.0 - i >= 0 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 - i) as usize][c.1 as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
 	// 	}
-
-	// 	// No one is winning yet
+	// 	count = 0;
+	// 	//check down right
+	// 	for i in 1..5 {
+	// 		if c.1 + i <= 18 && c.0 + i <= 18 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 + i) as usize][(c.1 + i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
+	// 	}
+	// 	// up left
+	// 	for i in 1..5 {
+	// 		if c.1 - i >= 0 && c.0 - i >= 0 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 - i) as usize][(c.1 - i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
+	// 	}
+	// 	count = 0;
+	// 	//check down left
+	// 	for i in 1..5 {
+	// 		if c.1 - i >= 0 && c.0 + i <= 18 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 + i) as usize][(c.1 - i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
+	// 	}
+	// 	// up right
+	// 	for i in 1..5 {
+	// 		if c.1 + i <= 18 && c.0 - i >= 0 {
+	// 			if count == 5 {
+	// 				return if player == 'x' { 1 } else { 2 };
+	// 			}
+	// 			if self[(c.0 - i) as usize][(c.1 + i) as usize] != player {
+	// 				break;
+	// 			}
+	// 			count += 1;
+	// 		}
+	// 	}
 	// 	0
 	// }
 
-	fn winner(&self, c: &Coords) -> i8 {
-		// self.display();
-		let player: char = self[c.0 as usize][c.1 as usize];
-		// let mut c: Coords = coords.clone();
-		// let d: Coords = (c.0 as usize,c.1 as usize)
-		let mut count: i8 = 0;
-		//check right
-		for i in 1..5 {
-			if c.1 + i <= 18 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[c.0 as usize][(c.1 + i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		// check left
-		for i in 1..5 {
-			if c.1 - i >= 0 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[c.0 as usize][(c.1 - i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		count = 0;
-		//check down
-		for i in 1..5 {
-			if c.0 + i <= 18  {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 + i) as usize][c.1 as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		// check up
-		for i in 1..5 {
-			if c.0 - i >= 0 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 - i) as usize][c.1 as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		count = 0;
-		//check down right
-		for i in 1..5 {
-			if c.1 + i <= 18 && c.0 + i <= 18 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 + i) as usize][(c.1 + i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		// up left
-		for i in 1..5 {
-			if c.1 - i >= 0 && c.0 - i >= 0 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 - i) as usize][(c.1 - i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		count = 0;
-		//check down left
-		for i in 1..5 {
-			if c.1 - i >= 0 && c.0 + i <= 18 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 + i) as usize][(c.1 - i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		// up right
-		for i in 1..5 {
-			if c.1 + i <= 18 && c.0 - i >= 0 {
-				if count == 5 {
-					return if player == 'x' { 1 } else { 2 };
-				}
-				if self[(c.0 - i) as usize][(c.1 + i) as usize] != player {
-					break;
-				}
-				count += 1;
-			}
-		}
-		0
-	}
-
-	fn current_player(&self) -> u8 {
+	fn current_player(&self) -> i8 {
 		let mut count: u32 = 0;
 		for i in 0..3 {
             for j in 0..3 {
@@ -226,17 +228,17 @@ pub struct McNode {
     state: Board,
     num_plays: u16,
     num_wins: u16,
-    player: u8,
+    player: i8,
     score: u32,
 }
 
 impl McNode {
-    fn new(state: Board) -> McNode {
+    fn new(state: Board, current_player: i8) -> McNode {
         McNode {
             state: state,
             num_plays : 0,
             num_wins : 0,
-            player: 1,
+            player: current_player,
             score : 0
         }
     }
@@ -304,10 +306,10 @@ impl McNode {
 
 fn find_good_node(root: &NodeRef<McNode>) -> (Vec<NodeId>)  {
     match root {
-        mut node => {
+        node => {
             if node.has_children() {
                 let kids = node.children();
-                let non_visited = kids.filter(|k| k.value().num_plays != 0);
+                let non_visited = kids.filter(|k| k.value().num_plays == 0);
                 // if non_visited.is_some {
 				for x in non_visited {
 					return vec![x.id()];
@@ -329,35 +331,40 @@ fn find_good_node(root: &NodeRef<McNode>) -> (Vec<NodeId>)  {
     }
 }
 fn main() {
-    let mut board: Board = [['.'; 3]; 3];
-    let board2: Board = [
+    // let mut board: Board = [['.'; 3]; 3];
+    let board: Board = [
 		['.', '.', '.'],
 		['.', 'x', '.'],
 		['.', '.', '.']
 	];
-    let board3: Board = [
-		['x', '.', '.'],
-		['.', '.', '.'],
-		['.', '.', '.']
-	];
-        let board4: Board = [
-		['.', '.', '.'],
-		['.', '.', '.'],
-		['.', '.', 'x']
-	];
+    // let board3: Board = [
+	// 	['x', '.', '.'],
+	// 	['.', '.', '.'],
+	// 	['.', '.', '.']
+	// ];
+    //     let board4: Board = [
+	// 	['.', '.', '.'],
+	// 	['.', '.', '.'],
+	// 	['.', '.', 'x']
+	// ];
 
-    let mut mcRootNode = McNode::new(board);
-    let mut mcChildNode = McNode::new(board2);
-    let mut mcChildNode2 = McNode::new(board3);
-    let mut mcChildNode3 = McNode::new(board4);
+    let mc_root_node = McNode::new(board,board.current_player());
+    // let mut mcChildNode = McNode::new(board2);
+    // let mut mcChildNode2 = McNode::new(board3);
+    // let mut mcChildNode3 = McNode::new(board4);
 
-    let mut tree = ego_tree::Tree::new(mcRootNode);
+    let mut tree = ego_tree::Tree::new(mc_root_node);
     let mut root = tree.root_mut();
     // let mut a = root.append(mcChildNode2);
     // let mut b = a.append(mcChildNode3);
     // root.append(mcChildNode);
-    let passed_root = tree.root();
-    
+	let legal = board.legal_plays();
+	
+	for _ in 0..7 {
+		root.append(McNode::new( board.next_state( legal.choose(&mut rand::thread_rng()).unwrap()),board.current_player()));
+	}
+	// let passed_root = tree.root();
+    // println!("this is OG tree {:?}", tree);
     // let k = tree.values();
 
     // for nod in k {
@@ -371,25 +378,81 @@ fn main() {
 	let mut i = 0;
 
 	// Monte carlo loop
-	while (i < 10) {
+	while i < 1000
+	 {
 
 		//Selection
-		let path = find_good_node(&tree.root());
+		let mut path = find_good_node(&tree.root());
 		// println!("path: {:#?}", path);
 		
 		let mut expand_node = tree.get_mut(path[0]).unwrap();
+		// path.push(expand_node);
 		let legal_plays = expand_node.value().state.legal_plays();
+		if legal_plays.len() == 0 {
+			continue;
+		}
 
 		// expansion
-		let simulation_root_node_coords = legal_plays.choose(&mut rand::thread_rng()).unwrap();
-		let mut new_board = expand_node.value().state.next_state(simulation_root_node_coords);
+		let mut ids = vec![];
+		for _ in 0..3{
+			let simulation_root_node_coords = legal_plays.choose(&mut rand::thread_rng()).unwrap();
+			let index = legal_plays.iter().position(|x| *x == *simulation_root_node_coords).unwrap();
+			legal_plays.remove(index);
+		//we deref expand node values twice, once for legal plays the other to get the board, maybe can do once
+			let new_board = expand_node.value().state.next_state(simulation_root_node_coords);
 
-		let mut mcChildNode4 = McNode::new(new_board);
-		expand_node.append(mcChildNode4);
+			let mc_child_node4 = McNode::new(new_board, new_board.current_player());
+			let mut_id = expand_node.append(mc_child_node4);
+			ids.push((mut_id, simulation_root_node_coords));
+
+		}
+		
+		let tchoice = ids.choose(&mut rand::thread_rng()).unwrap();
+		let choice = tchoice.clone();
+		path.push(choice.0.id());
 		// println!("this is the treeeeeeee {:?}",tree );
-		new_board.display();
+		// new_board.display();
+		let won = gamesim(*choice);
+		println!("{:?} player WON",won );
+
+		
+		for node_id in path {
+			let mut mut_ref = tree.get_mut(node_id).unwrap();
+			if won == mut_ref.value().player {
+				mut_ref.value().num_wins += 1;
+			}
+			mut_ref.value().num_plays += 1;
+		}
+		
 
 		i += 1;
+	}
+	// let tmp = tree.get_mut(path[0]).unwrap();
+	println!("this is the treeeeeee {:?}", tree);
+
+	fn gamesim(choice: (NodeMut<McNode>,Coords)) -> i8 {
+		let start = choice.0.value().state;
+		if start.if_over(){
+			return 0;
+		}
+		let mut board = start.clone();
+		let mut winner = start.winner(&choice.1);
+		// let mut play = (0,0);
+		while winner == 0 {
+			if board.if_over(){
+				return 0;
+			}
+			//if no legal plays then its a tie, so you dont haev to check for "if over"
+			let plays = board.legal_plays();
+			let play = plays.choose(&mut rand::thread_rng()).unwrap();
+			//optimize this next state to maybe mutate the copy you give it instead of cloning 
+			board = board.next_state(play);
+
+			winner = board.winner(play);
+			
+
+		}
+		return winner;
 	}
 	// println!("node to expand {:?}",expand_node );
 
@@ -404,4 +467,22 @@ fn main() {
     
     // println!("{:#?}",tree);
     // println!("{:#?}",k);
+	let best = tree.root().children();
+	let best2 = best.clone();
+	// for k in best {
+	// 	println!("this is the values {:?}",k.value() );
+	// }
+	let turn = best.map(|node| (node.value().num_plays, node.value().num_wins));
+	let turn2 = best2.map(|node| ((node.value().num_wins as f32 / node.value().num_plays as f32) * 1000.0) as i64) ;
+	// let fin = turn2.max().unwrap();
+	// println!("fin {:?} ",fin);
+	for x in turn2 {
+		println!("this {:?}", x);
+	}
+	for x in turn {
+		println!("this {:?}", x);
+	}
+	// println!("fin {:?}", fin);
+	// let fin = turn.max();
+
 }
