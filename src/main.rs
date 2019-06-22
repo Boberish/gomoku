@@ -1,4 +1,4 @@
-use ego_tree;
+#[macro_use] extern crate ego_tree;
 use ego_tree::NodeMut;
 use ego_tree::NodeRef;
 use ego_tree::NodeId;
@@ -223,7 +223,6 @@ impl TBoard for Board {
 pub type Board = [[char;3];3];
 pub type Coords = (i8, i8);
 
-#[derive(Debug)]
 pub struct McNode {
     state: Board,
     num_plays: u16,
@@ -245,244 +244,37 @@ impl McNode {
 
     
 }
-// fn find_good_node(root: NodeMut<McNode>)  {
-//     match root {
-//         // None => {
-//         //     println!("done traversing a level");
-//         //     // return root;
-//         // }
-//     mut node => {
-//             if node.has_children(){
-//                 let mut tmp = node.first_child().unwrap();
-//                 // let mut val = tmp.value();
 
-//                 let mut sib = tmp.next_sibling().unwrap();
-//                 println!("{:#?}", sib.value().score);
-
-//                 // let mut sib2 = sib.next_sibling().unwrap();
-//                 // println!("{:#?}", sib2.value().score);
-
-//                 let mut sib2 = sib.next_sibling();
-//                 // match sib2 {
-//                 //     Some(mut sib) => {println!("{:#?}", sib.value().score);},
-//                 //     _ => {}
-//                 // }
-
-//                 while let Some(mut s) = sib2 {
-//                     // println!("{:#?}", s.value().score);
-//                     println!("junk");
-//                     sib2 = Some(s.next_sibling().unwrap());
-//                 }
-//                 // if let sib2 = Some(1)  {
-//                 // println!("{:#?}", sib2.unwrap().value().score);
-//                 // }
-//                 // println!("{:#?}", sib3.value().score);
-
-//                 // let vals = sib2.value();
-//                 // println!("{}", vals.score);
-                
-//                 // val.num_plays = 9;
-
-//                 // let mut tmp2 = tmp.unwrap();
-//                 // let mut tmp3 = tmp2.next_sibling();
-//                 // let tmp2 = tmp.next_siblings();
-//                 // let tmp3 = node.next_sibling();
-
-//                 // for mut x in tmp {
-//                     // println!("{:#?}-----------------------------",val);
-//                     // println!("{:#?}",tmp3);
-//                     // println!("{:#?}",tmp3);
-//                 // }
-//             }
-//             return;
-//             // return node;
-//             // find_good_node(node.)
-//         }
-//         _ => {}
-//         // return;
-//     }
-
-// }
-
-fn find_good_node(root: &NodeRef<McNode>) -> (Vec<NodeId>)  {
-    match root {
-        node => {
-            if node.has_children() {
-                let kids = node.children();
-                let non_visited = kids.filter(|k| k.value().num_plays == 0);
-                // if non_visited.is_some {
-				for x in non_visited {
-					return vec![x.id()];
-                    // return (non_visited.choose(&mut rand::thread_rng()),path);
-                }
-
-                //do UCB
-                let kids = node.children();
-				let path = find_good_node(&kids.choose(&mut rand::thread_rng()).unwrap());
-				
-				return [path, vec![node.id()]].concat()
-                
-                // }
-                // match non_visited.choose(&mut rand::thread_rng()) 
-
-            }
-			vec![node.id()]
-        }
-    }
+// Mock, always retuning the node
+fn back_propagation (node: NodeMut<McNode>) -> NodeMut<McNode> {
+	node
 }
+
+// Mock, always retuning the node
+fn simulation (node: NodeMut<McNode>) -> NodeMut<McNode> {
+	node
+}
+
+// Mock, always retuning the node
+fn selection (node: NodeMut<McNode>) -> NodeMut<McNode> {
+	node
+}
+
+// Mock, always retuning the node
+fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
+	node		
+}
+
 fn main() {
-    // let mut board: Board = [['.'; 3]; 3];
     let board: Board = [
 		['.', '.', '.'],
 		['.', 'x', '.'],
 		['.', '.', '.']
 	];
-    // let board3: Board = [
-	// 	['x', '.', '.'],
-	// 	['.', '.', '.'],
-	// 	['.', '.', '.']
-	// ];
-    //     let board4: Board = [
-	// 	['.', '.', '.'],
-	// 	['.', '.', '.'],
-	// 	['.', '.', 'x']
-	// ];
 
-    let mc_root_node = McNode::new(board,board.current_player());
-    // let mut mcChildNode = McNode::new(board2);
-    // let mut mcChildNode2 = McNode::new(board3);
-    // let mut mcChildNode3 = McNode::new(board4);
-
-    let mut tree = ego_tree::Tree::new(mc_root_node);
-    let mut root = tree.root_mut();
-    // let mut a = root.append(mcChildNode2);
-    // let mut b = a.append(mcChildNode3);
-    // root.append(mcChildNode);
-	let legal = board.legal_plays();
-	
-	for _ in 0..7 {
-		root.append(McNode::new( board.next_state( legal.choose(&mut rand::thread_rng()).unwrap()),board.current_player()));
-	}
-	// let passed_root = tree.root();
-    // println!("this is OG tree {:?}", tree);
-    // let k = tree.values();
-
-    // for nod in k {
-    //     println!("{:#?}", nod.state)
-    // }
-
-    // for t in 0..100 {
-
-    // let mut path: Vec<u16> = Vec::new();
-
-	let mut i = 0;
-
-	// Monte carlo loop
-	while i < 1000
-	 {
-
-		//Selection
-		let mut path = find_good_node(&tree.root());
-		// println!("path: {:#?}", path);
-		
-		let mut expand_node = tree.get_mut(path[0]).unwrap();
-		// path.push(expand_node);
-		let legal_plays = expand_node.value().state.legal_plays();
-		if legal_plays.len() == 0 {
-			continue;
-		}
-
-		// expansion
-		let mut ids = vec![];
-		for _ in 0..3{
-			let simulation_root_node_coords = legal_plays.choose(&mut rand::thread_rng()).unwrap();
-			let index = legal_plays.iter().position(|x| *x == *simulation_root_node_coords).unwrap();
-			legal_plays.remove(index);
-		//we deref expand node values twice, once for legal plays the other to get the board, maybe can do once
-			let new_board = expand_node.value().state.next_state(simulation_root_node_coords);
-
-			let mc_child_node4 = McNode::new(new_board, new_board.current_player());
-			let mut_id = expand_node.append(mc_child_node4);
-			ids.push((mut_id, simulation_root_node_coords));
-
-		}
-		
-		let tchoice = ids.choose(&mut rand::thread_rng()).unwrap();
-		let choice = tchoice.clone();
-		path.push(choice.0.id());
-		// println!("this is the treeeeeeee {:?}",tree );
-		// new_board.display();
-		let won = gamesim(*choice);
-		println!("{:?} player WON",won );
-
-		
-		for node_id in path {
-			let mut mut_ref = tree.get_mut(node_id).unwrap();
-			if won == mut_ref.value().player {
-				mut_ref.value().num_wins += 1;
-			}
-			mut_ref.value().num_plays += 1;
-		}
-		
-
-		i += 1;
-	}
-	// let tmp = tree.get_mut(path[0]).unwrap();
-	println!("this is the treeeeeee {:?}", tree);
-
-	fn gamesim(choice: (NodeMut<McNode>,Coords)) -> i8 {
-		let start = choice.0.value().state;
-		if start.if_over(){
-			return 0;
-		}
-		let mut board = start.clone();
-		let mut winner = start.winner(&choice.1);
-		// let mut play = (0,0);
-		while winner == 0 {
-			if board.if_over(){
-				return 0;
-			}
-			//if no legal plays then its a tie, so you dont haev to check for "if over"
-			let plays = board.legal_plays();
-			let play = plays.choose(&mut rand::thread_rng()).unwrap();
-			//optimize this next state to maybe mutate the copy you give it instead of cloning 
-			board = board.next_state(play);
-
-			winner = board.winner(play);
-			
-
-		}
-		return winner;
-	}
-	// println!("node to expand {:?}",expand_node );
-
-	// println!("simulation_root_node_coords {:?}",simulation_root_node_coords );
-	    // let a:i32 = 0;
-    // let b = 1;
-
-    // if a.is_some() {
-    //     println!("1");
-    // }
-    // }
-    
-    // println!("{:#?}",tree);
-    // println!("{:#?}",k);
-	let best = tree.root().children();
-	let best2 = best.clone();
-	// for k in best {
-	// 	println!("this is the values {:?}",k.value() );
-	// }
-	let turn = best.map(|node| (node.value().num_plays, node.value().num_wins));
-	let turn2 = best2.map(|node| ((node.value().num_wins as f32 / node.value().num_plays as f32) * 1000.0) as i64) ;
-	// let fin = turn2.max().unwrap();
-	// println!("fin {:?} ",fin);
-	for x in turn2 {
-		println!("this {:?}", x);
-	}
-	for x in turn {
-		println!("this {:?}", x);
-	}
-	// println!("fin {:?}", fin);
-	// let fin = turn.max();
-
+	let mut tree = tree!(McNode::new(board, 1));
+	let selected_node = selection(tree.root_mut());
+	let expansion_node = expand(selected_node);
+	let end_node = simulation(expansion_node);
+	back_propagation(end_node);
 }
