@@ -283,7 +283,15 @@ fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
 	node	
 }
 
-fn monte_carlo(mut tree: Tree<McNode>) -> Coords {
+// mock: return first avalaible node
+fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
+	match root_node.first_child() {
+		None => Err(String::from("No avalaible nodes")),
+		Some(v) => Ok(v.value().state)
+	}
+}
+
+fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 	let n_run = 50;
 
 	for i in 0..=n_run {
@@ -291,12 +299,13 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Coords {
 		let mut expansion_node = expand(selected_node);
 		let winner = simulation(&expansion_node.value().state);
 		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
-		println!("winner: {}", winner);
 		back_propagation(expansion_node, win);
 	}
 
-	// Mock return
-	(0, 0)
+	match choose_best_move(tree.root()) {
+		Err(error_message) => Err(error_message),
+		Ok(best_node) => Ok((0, 0))
+	}
 }
 
 fn main() {
@@ -307,5 +316,8 @@ fn main() {
 	];
 
 	let tree = tree!(McNode::new(board, 1));
-	monte_carlo(tree);
+	match monte_carlo(tree) {
+		Ok(best_move) => println!("Best move: {:?}", best_move),
+		Err(error_message) => println!("{}", error_message)
+	}
 }
