@@ -255,9 +255,14 @@ fn back_propagation (mut node: NodeMut<McNode>, win: i8) {
 	}
 }
 
-// Mock, always retuning the node
-fn selection (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	node
+// random selection
+fn selection (node: NodeRef<McNode>) -> NodeId {
+	if !(node.has_children()) {
+		return node.id();
+	}
+	let kids = node.children();
+	let kid = kids.choose(&mut rand::thread_rng()).unwrap();
+	selection(kid)
 }
 
 // Explore first next play until the game is over
@@ -305,7 +310,8 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 	let n_run = 50;
 
 	for i in 0..=n_run {
-		let mut selected_node = selection(tree.root_mut());
+		let selected_node_id = selection(tree.root());
+		let mut selected_node = tree.get_mut(selected_node_id).unwrap();
 		selected_node = expand(selected_node);
 		let winner = simulation(&selected_node.value().state);
 		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
@@ -325,7 +331,7 @@ fn main() {
 		['.', '.', '.']
 	];
 
-	// ai_vs_ai(board, 1)
+	ai_vs_ai(board, 1)
 }
 
 fn ai_vs_ai (board: Board, player: i8) {
