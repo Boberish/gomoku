@@ -2,6 +2,7 @@
 use ego_tree::NodeMut;
 use ego_tree::NodeRef;
 use ego_tree::NodeId;
+use ego_tree::Tree;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
 
@@ -282,13 +283,17 @@ fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
 	node	
 }
 
-fn monte_carlo(tree: NodeMut<McNode>) -> Coords {
-	let selected_node = selection(tree.root_mut());
-	let mut expansion_node = expand(selected_node);
-	let winner = simulation(&expansion_node.value().state);
-	let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
-	println!("winner: {}", winner);
-	back_propagation(expansion_node, win);
+fn monte_carlo(mut tree: Tree<McNode>) -> Coords {
+	let n_run = 50;
+
+	for i in 0..=n_run {
+		let selected_node = selection(tree.root_mut());
+		let mut expansion_node = expand(selected_node);
+		let winner = simulation(&expansion_node.value().state);
+		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
+		println!("winner: {}", winner);
+		back_propagation(expansion_node, win);
+	}
 
 	// Mock return
 	(0, 0)
@@ -301,6 +306,6 @@ fn main() {
 		['.', '.', '.']
 	];
 
-	let mut tree = tree!(McNode::new(board, 1));
-	monte_carlo(tree)
+	let tree = tree!(McNode::new(board, 1));
+	monte_carlo(tree);
 }
