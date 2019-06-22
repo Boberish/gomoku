@@ -248,6 +248,7 @@ impl McNode {
 
 // Mock: not doing anything
 // Update all nodes (num_visited, num_win)
+// TODO: update nb wins and nb visit
 fn back_propagation (mut node: NodeMut<McNode>, win: i8) {
 	match node.parent() {
 		None => (),
@@ -256,6 +257,7 @@ fn back_propagation (mut node: NodeMut<McNode>, win: i8) {
 }
 
 // random selection
+// TODO: add UCT selection
 fn selection (node: NodeRef<McNode>) -> NodeId {
 	if !(node.has_children()) {
 		return node.id();
@@ -267,6 +269,7 @@ fn selection (node: NodeRef<McNode>) -> NodeId {
 
 // Explore first next play until the game is over
 // or there is no plays left to select
+// TODO: randomize coords to pick
 fn simulation (state: &Board) -> i8 {
 
 	// coords: Mock
@@ -299,6 +302,7 @@ fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
 }
 
 // mock: return first avalaible node
+// TODO: compare and get node with the best win/play ratio
 fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
 	match root_node.first_child() {
 		None => Err(String::from("No avalaible nodes")),
@@ -318,6 +322,7 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 		back_propagation(selected_node, win);
 	}
 
+	// TODO: get coords from board state
 	match choose_best_move(tree.root()) {
 		Err(error_message) => Err(error_message),
 		Ok(best_node) => Ok((0, 0))
