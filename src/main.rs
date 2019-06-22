@@ -245,9 +245,13 @@ impl McNode {
     
 }
 
-// Mock, always retuning the node
-fn back_propagation (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	node
+// Mock: not doing anything
+// Update all nodes (num_visited, num_win)
+fn back_propagation (mut node: NodeMut<McNode>, win: i8) {
+	match node.parent() {
+		None => (),
+		Some(parent) => back_propagation(parent, win) 
+	}
 }
 
 // Mock, always retuning the node
@@ -289,6 +293,7 @@ fn main() {
 	let selected_node = selection(tree.root_mut());
 	let mut expansion_node = expand(selected_node);
 	let winner = simulation(&expansion_node.value().state);
+	let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
 	println!("winner: {}", winner);
-	back_propagation(expansion_node);
+	back_propagation(expansion_node, win);
 }
