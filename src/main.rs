@@ -321,13 +321,26 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 fn main() {
     let board: Board = [
 		['.', '.', '.'],
-		['.', 'x', '.'],
+		['.', '.', '.'],
 		['.', '.', '.']
 	];
 
-	let tree = tree!(McNode::new(board, 1));
+	// ai_vs_ai(board, 1)
+}
+
+fn ai_vs_ai (board: Board, player: i8) {
+
+	let tree = tree!(McNode::new(board, player));
 	match monte_carlo(tree) {
-		Ok(best_move) => println!("Best move: {:?}", best_move),
+		Ok(best_move) => {
+			let new_board = board.next_state(&best_move);
+			new_board.display();
+			let winner = new_board.winner(&best_move);
+			if (winner != 0) {
+				println!("player {} wins", winner)
+			}
+			ai_vs_ai(new_board, 3 - player)
+		},
 		Err(error_message) => println!("{}", error_message)
 	}
 }
