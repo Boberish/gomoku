@@ -304,9 +304,19 @@ fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
 }
 
 // mock: return first avalaible node
-// TODO: compare and get node with the best win/play ratio
+// TODO: avoid crash on division by 0
 fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
-	match root_node.first_child() {
+	let best_node = root_node.children()
+	.max_by(|a, b| {
+		let value_a = a.value();
+		let value_b = b.value();
+		println!("{:?}", value_b.num_wins);
+		let score_a = (value_a.num_wins as f32 / value_a.num_plays as f32);
+		let score_b = (value_b.num_wins as f32 / value_b.num_plays as f32);
+		println!("{:?}, {:?}", score_a, score_b);
+		return score_a.partial_cmp(&score_b).unwrap() // unsafe
+	});
+	match best_node {
 		None => Err(String::from("No avalaible nodes")),
 		Some(v) => Ok(v.value().state)
 	}
