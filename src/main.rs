@@ -316,7 +316,6 @@ fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
 }
 
 // mock: return first avalaible node
-// TODO: avoid crash on division by 0
 fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
 	let best_node = root_node.children()
 	.max_by(|a, b| {
@@ -333,15 +332,16 @@ fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
 	}
 }
 
-fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
-	let n_run = 50;
+fn monte_carlo(mut tree: Tree<McNode>, player: i8) -> Result<Coords, String> {
+	let n_run = 150;
+	let opponent = 3 - player; 
 
 	for i in 0..=n_run {
 		let selected_node_id = selection(tree.root());
 		let mut selected_node = tree.get_mut(selected_node_id).unwrap();
 		selected_node = expand(selected_node);
 		let winner = simulation(&selected_node.value().state, &(0, 0)); // Not sure about the coords
-		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
+		let win = if winner == opponent { 0 } else { 1 }; // Pat is worth a victory for now
 		back_propagation(selected_node, win);
 	}
 
@@ -364,7 +364,7 @@ fn main() {
 fn ai_vs_ai (board: Board, player: i8) {
 
 	let tree = tree!(McNode::new(board, player));
-	match monte_carlo(tree) {
+	match monte_carlo(tree, player) {
 		Ok(best_move) => {
 			let new_board = board.next_state(&best_move);
 			new_board.display();
