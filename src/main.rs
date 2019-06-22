@@ -248,8 +248,10 @@ impl McNode {
 
 // Mock: not doing anything
 // Update all nodes (num_visited, num_win)
-// TODO: update nb wins and nb visit
-fn back_propagation (mut node: NodeMut<McNode>, win: i8) {
+fn back_propagation (mut node: NodeMut<McNode>, win: u16) {
+	let value = node.value();
+	value.num_wins = value.num_wins + win;
+	value.num_plays = value.num_wins + 1;
 	match node.parent() {
 		None => (),
 		Some(parent) => back_propagation(parent, win) 
