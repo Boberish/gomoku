@@ -251,25 +251,31 @@ fn back_propagation (node: NodeMut<McNode>) -> NodeMut<McNode> {
 }
 
 // Mock, always retuning the node
-fn simulation (node: NodeMut<McNode>) -> NodeMut<McNode> {
+fn selection (node: NodeMut<McNode>) -> NodeMut<McNode> {
 	node
 }
 
-// Explore first child node until the game is over
-// or there is no node left to select
-fn selection (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	if node.value().board.winner != 0 {
-		return node;
+// Explore first next play until the game is over
+// or there is no plays left to select
+fn simulation (state: &Board) -> i8 {
+
+	// coords: Mock
+	let winner = state.winner(&(0,0));
+	if winner != 0 {
+		return winner;
 	}
-	if !(node.has_children) {
-		return node;
+
+	// Mock: always use first possible play
+	let legal_plays = state.legal_plays();
+	if legal_plays.is_empty() {
+		return winner;
 	}
-	selection(first_child(node))
+	simulation(&state.next_state(&legal_plays[0]))
 }
 
 // Mock, always retuning the node
 fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	node		
+	node	
 }
 
 fn main() {
@@ -281,7 +287,8 @@ fn main() {
 
 	let mut tree = tree!(McNode::new(board, 1));
 	let selected_node = selection(tree.root_mut());
-	let expansion_node = expand(selected_node);
-	let end_node = simulation(expansion_node);
-	back_propagation(end_node);
+	let mut expansion_node = expand(selected_node);
+	let winner = simulation(&expansion_node.value().state);
+	println!("winner: {}", winner);
+	back_propagation(expansion_node);
 }
