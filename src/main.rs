@@ -279,8 +279,15 @@ fn simulation (state: &Board) -> i8 {
 }
 
 // Mock, always retuning the node
+// Should add a new node to the tree and return it
 fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	node	
+	let value = node.value();
+	let legal_plays = value.state.legal_plays();
+	let player = value.player;
+	let random_play = legal_plays.choose(&mut rand::thread_rng());
+	let expand_node = McNode::new(state.next_state(random_play), 3 - player);
+	node.append(expand_node);
+	expand_node
 }
 
 // mock: return first avalaible node
