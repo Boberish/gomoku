@@ -271,11 +271,10 @@ fn selection (node: NodeRef<McNode>) -> NodeId {
 
 // Explore first next play until the game is over
 // or there is no plays left to select
-// TODO: use real coords to get the winner
-fn simulation (state: &Board) -> i8 {
+fn simulation (state: &Board, last_move: &Coords) -> i8 {
 
 	// coords: Mock
-	let winner = state.winner(&(0,0));
+	let winner = state.winner(last_move);
 	if winner != 0 {
 		return winner;
 	}
@@ -286,7 +285,7 @@ fn simulation (state: &Board) -> i8 {
 		return winner;
 	}
 	let random_move = legal_plays.choose(&mut rand::thread_rng()).unwrap();
-	simulation(&state.next_state(&random_move))
+	simulation(&state.next_state(&random_move), &random_move)
 }
 
 // Add all possible nodes to the tree
@@ -320,7 +319,7 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 		let selected_node_id = selection(tree.root());
 		let mut selected_node = tree.get_mut(selected_node_id).unwrap();
 		selected_node = expand(selected_node);
-		let winner = simulation(&selected_node.value().state);
+		let winner = simulation(&selected_node.value().state, &(0, 0)); // Not sure about the coords
 		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
 		back_propagation(selected_node, win);
 	}
