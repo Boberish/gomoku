@@ -282,6 +282,18 @@ fn expand (node: NodeMut<McNode>) -> NodeMut<McNode> {
 	node	
 }
 
+fn monte_carlo(tree: NodeMut<McNode>) -> Coords {
+	let selected_node = selection(tree.root_mut());
+	let mut expansion_node = expand(selected_node);
+	let winner = simulation(&expansion_node.value().state);
+	let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
+	println!("winner: {}", winner);
+	back_propagation(expansion_node, win);
+
+	// Mock return
+	(0, 0)
+}
+
 fn main() {
     let board: Board = [
 		['.', '.', '.'],
@@ -290,10 +302,5 @@ fn main() {
 	];
 
 	let mut tree = tree!(McNode::new(board, 1));
-	let selected_node = selection(tree.root_mut());
-	let mut expansion_node = expand(selected_node);
-	let winner = simulation(&expansion_node.value().state);
-	let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
-	println!("winner: {}", winner);
-	back_propagation(expansion_node, win);
+	monte_carlo(tree)
 }
