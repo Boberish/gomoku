@@ -14,6 +14,7 @@ pub trait TBoard {
 	fn current_player(&self) -> i8;
 	fn display(&self);
 	fn if_over(&self) -> bool;
+	fn coords(&self, next_state: &Board) -> Coords;
 	// fn winnergomo()
 }
 
@@ -219,6 +220,17 @@ impl TBoard for Board {
 		}
 		println!("");
 	}
+
+	fn coords(&self, next_state: &Board) -> Coords {
+		for i in 0..3 {
+			for j in 0..3 {
+				if self[i][j] != next_state[i][j] {
+					return (i as i8, j as i8);
+				}
+			}
+		}
+		(0, 0) // should never happen
+	}
 }
 
 pub type Board = [[char;3];3];
@@ -310,10 +322,8 @@ fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
 	.max_by(|a, b| {
 		let value_a = a.value();
 		let value_b = b.value();
-		println!("{:?}", value_b.num_wins);
 		let score_a = (value_a.num_wins as f32 / value_a.num_plays as f32);
 		let score_b = (value_b.num_wins as f32 / value_b.num_plays as f32);
-		println!("{:?}, {:?}", score_a, score_b);
 		return score_a.partial_cmp(&score_b).unwrap() // unsafe
 	});
 	match best_node {
@@ -334,10 +344,9 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 		back_propagation(selected_node, win);
 	}
 
-	// TODO: get coords from board state
 	match choose_best_move(tree.root()) {
 		Err(error_message) => Err(error_message),
-		Ok(best_node) => Ok((0, 0))
+		Ok(best_board) => Ok(tree.root().value().state.coords(&best_board))
 	}
 }
 
@@ -360,7 +369,7 @@ fn ai_vs_ai (board: Board, player: i8) {
 			new_board.display();
 			let winner = new_board.winner(&best_move);
 			if (winner != 0) {
-				println!("player {} wins", winner)
+				return println!("player {} wins", winner)
 			}
 			ai_vs_ai(new_board, 3 - player)
 		},
