@@ -255,9 +255,16 @@ fn simulation (node: NodeMut<McNode>) -> NodeMut<McNode> {
 	node
 }
 
-// Mock, always retuning the node
+// Explore first child node until the game is over
+// or there is no node left to select
 fn selection (node: NodeMut<McNode>) -> NodeMut<McNode> {
-	node
+	if node.value().board.winner != 0 {
+		return node;
+	}
+	if !(node.has_children) {
+		return node;
+	}
+	selection(first_child(node))
 }
 
 // Mock, always retuning the node
