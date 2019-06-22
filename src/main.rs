@@ -271,7 +271,7 @@ fn selection (node: NodeRef<McNode>) -> NodeId {
 
 // Explore first next play until the game is over
 // or there is no plays left to select
-// TODO: randomize coords to pick
+// TODO: use real coords to get the winner
 fn simulation (state: &Board) -> i8 {
 
 	// coords: Mock
@@ -285,7 +285,8 @@ fn simulation (state: &Board) -> i8 {
 	if legal_plays.is_empty() {
 		return winner;
 	}
-	simulation(&state.next_state(&legal_plays[0]))
+	let random_move = legal_plays.choose(&mut rand::thread_rng()).unwrap();
+	simulation(&state.next_state(&random_move))
 }
 
 // Add all possible nodes to the tree
