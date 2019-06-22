@@ -278,17 +278,18 @@ fn simulation (state: &Board) -> i8 {
 	simulation(&state.next_state(&legal_plays[0]))
 }
 
-// Mock, always retuning the node
+// Add all possible nodes to the tree
 fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
 	let value = node.value();
 	let state = value.state;
 	let player = value.player;
 	let legal_plays = state.legal_plays();
-	let random_choice = legal_plays.choose(&mut rand::thread_rng()).unwrap();
-	let child_state = state.next_state(random_choice);
 	let child_player = 3 - player;
-	let child = McNode::new(child_state, child_player);
-	node.append(child);
+	for coords in legal_plays.into_iter() {
+		let child_state = state.next_state(&coords);
+		let child = McNode::new(child_state, child_player);
+		node.append(child);
+	}
 	node
 }
 
@@ -306,10 +307,9 @@ fn monte_carlo(mut tree: Tree<McNode>) -> Result<Coords, String> {
 	for i in 0..=n_run {
 		let mut selected_node = selection(tree.root_mut());
 		selected_node = expand(selected_node);
-		let mut expansion_node = selected_node.first_child().unwrap(); // Unsafe
-		let winner = simulation(&expansion_node.value().state);
+		let winner = simulation(&selected_node.value().state);
 		let win = if winner == 2 { 0 } else { 1 }; // Pat is worth a victory for now
-		back_propagation(expansion_node, win);
+		back_propagation(selected_node, win);
 	}
 
 	match choose_best_move(tree.root()) {
