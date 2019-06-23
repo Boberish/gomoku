@@ -5,6 +5,7 @@ use ego_tree::NodeId;
 use ego_tree::Tree;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
+use std::io::{stdin,stdout,Write};
 
 pub trait TBoard {
     fn legal_plays(&self) -> Vec<Coords>;
@@ -379,10 +380,28 @@ fn ai_vs_ai (board: Board, player: i8) {
 }
 
 fn get_player_move(mut tree: Tree<McNode>) -> Result<Coords, String> {
-	return Ok((0,0));
+	
+    let mut s = String::new();
+    print!("Enter Coords for your next move: ");
+    
+	let _=stdout().flush();
+    stdin().read_line(&mut s).expect("Did not enter a correct string");
+    
+	if let Some('\n') = s.chars().next_back() {
+        s.pop();
+    }
+    if let Some('\r') = s.chars().next_back() {
+        s.pop();
+    }
+	let split_str = s.split(' ');
+	let vec: Vec<&str> = split_str.collect();
+	let x = vec[0].parse::<i8>().unwrap();
+	let y = vec[1].parse::<i8>().unwrap();
+	Ok((y,x))
 }
 
 fn pve (board: Board, player: i8) {
+	board.display();
 	let tree = tree!(McNode::new(board, player));
 	let mut next_move = (0,0);
 	if player == 1 {
@@ -397,7 +416,6 @@ fn pve (board: Board, player: i8) {
 		}
 	}
 	let new_board = board.next_state(&next_move);
-	new_board.display();
 	let winner = new_board.winner(&next_move);
 	if (winner != 0) {
 		return println!("player {} wins", winner)
