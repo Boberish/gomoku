@@ -1,9 +1,11 @@
-use ego_tree;
+#[macro_use] extern crate ego_tree;
 use ego_tree::NodeMut;
 use ego_tree::NodeRef;
 use ego_tree::NodeId;
+use ego_tree::Tree;
 use rand::seq::IteratorRandom;
 use rand::seq::SliceRandom;
+use std::io::{stdin,stdout,Write};
 
 pub trait TBoard {
     fn legal_plays(&self) -> Vec<Coords>;
@@ -13,6 +15,7 @@ pub trait TBoard {
 	fn current_player(&self) -> i8;
 	fn display(&self);
 	fn if_over(&self) -> bool;
+	fn coords(&self, next_state: &Board) -> Coords;
 	// fn winnergomo()
 }
 
@@ -218,12 +221,22 @@ impl TBoard for Board {
 		}
 		println!("");
 	}
+
+	fn coords(&self, next_state: &Board) -> Coords {
+		for i in 0..3 {
+			for j in 0..3 {
+				if self[i][j] != next_state[i][j] {
+					return (i as i8, j as i8);
+				}
+			}
+		}
+		(0, 0) // should never happen
+	}
 }
 
 pub type Board = [[char;3];3];
 pub type Coords = (i8, i8);
 
-#[derive(Debug)]
 pub struct McNode {
     state: Board,
     num_plays: u16,
@@ -245,244 +258,204 @@ impl McNode {
 
     
 }
-// fn find_good_node(root: NodeMut<McNode>)  {
-//     match root {
-//         // None => {
-//         //     println!("done traversing a level");
-//         //     // return root;
-//         // }
-//     mut node => {
-//             if node.has_children(){
-//                 let mut tmp = node.first_child().unwrap();
-//                 // let mut val = tmp.value();
 
-//                 let mut sib = tmp.next_sibling().unwrap();
-//                 println!("{:#?}", sib.value().score);
-
-//                 // let mut sib2 = sib.next_sibling().unwrap();
-//                 // println!("{:#?}", sib2.value().score);
-
-//                 let mut sib2 = sib.next_sibling();
-//                 // match sib2 {
-//                 //     Some(mut sib) => {println!("{:#?}", sib.value().score);},
-//                 //     _ => {}
-//                 // }
-
-//                 while let Some(mut s) = sib2 {
-//                     // println!("{:#?}", s.value().score);
-//                     println!("junk");
-//                     sib2 = Some(s.next_sibling().unwrap());
-//                 }
-//                 // if let sib2 = Some(1)  {
-//                 // println!("{:#?}", sib2.unwrap().value().score);
-//                 // }
-//                 // println!("{:#?}", sib3.value().score);
-
-//                 // let vals = sib2.value();
-//                 // println!("{}", vals.score);
-                
-//                 // val.num_plays = 9;
-
-//                 // let mut tmp2 = tmp.unwrap();
-//                 // let mut tmp3 = tmp2.next_sibling();
-//                 // let tmp2 = tmp.next_siblings();
-//                 // let tmp3 = node.next_sibling();
-
-//                 // for mut x in tmp {
-//                     // println!("{:#?}-----------------------------",val);
-//                     // println!("{:#?}",tmp3);
-//                     // println!("{:#?}",tmp3);
-//                 // }
-//             }
-//             return;
-//             // return node;
-//             // find_good_node(node.)
-//         }
-//         _ => {}
-//         // return;
-//     }
-
-// }
-
-fn find_good_node(root: &NodeRef<McNode>) -> (Vec<NodeId>)  {
-    match root {
-        node => {
-            if node.has_children() {
-                let kids = node.children();
-                let non_visited = kids.filter(|k| k.value().num_plays == 0);
-                // if non_visited.is_some {
-				for x in non_visited {
-					return vec![x.id()];
-                    // return (non_visited.choose(&mut rand::thread_rng()),path);
-                }
-
-                //do UCB
-                let kids = node.children();
-				let path = find_good_node(&kids.choose(&mut rand::thread_rng()).unwrap());
-				
-				return [path, vec![node.id()]].concat()
-                
-                // }
-                // match non_visited.choose(&mut rand::thread_rng()) 
-
-            }
-			vec![node.id()]
-        }
-    }
+// Update all nodes (num_visited, num_win)
+fn back_propagation (mut node: NodeMut<McNode>, win: u16) {
+	let value = node.value();
+	value.num_wins = value.num_wins + win;
+	value.num_plays = value.num_wins + 1;
+	match node.parent() {
+		None => (),
+		Some(parent) => back_propagation(parent, win) 
+	}
 }
-fn main() {
-    // let mut board: Board = [['.'; 3]; 3];
-    let board: Board = [
-		['.', '.', '.'],
-		['.', 'x', '.'],
-		['.', '.', '.']
-	];
-    // let board3: Board = [
-	// 	['x', '.', '.'],
-	// 	['.', '.', '.'],
-	// 	['.', '.', '.']
-	// ];
-    //     let board4: Board = [
-	// 	['.', '.', '.'],
-	// 	['.', '.', '.'],
-	// 	['.', '.', 'x']
-	// ];
 
-    let mc_root_node = McNode::new(board,board.current_player());
-    // let mut mcChildNode = McNode::new(board2);
-    // let mut mcChildNode2 = McNode::new(board3);
-    // let mut mcChildNode3 = McNode::new(board4);
-
-    let mut tree = ego_tree::Tree::new(mc_root_node);
-    let mut root = tree.root_mut();
-    // let mut a = root.append(mcChildNode2);
-    // let mut b = a.append(mcChildNode3);
-    // root.append(mcChildNode);
-	let legal = board.legal_plays();
-	
-	for _ in 0..7 {
-		root.append(McNode::new( board.next_state( legal.choose(&mut rand::thread_rng()).unwrap()),board.current_player()));
+// random selection
+// TODO: add UCT selection
+fn selection (node: NodeRef<McNode>) -> NodeId {
+	if !(node.has_children()) {
+		return node.id();
 	}
-	// let passed_root = tree.root();
-    // println!("this is OG tree {:?}", tree);
-    // let k = tree.values();
+	let kids = node.children();
+	let kid = kids.choose(&mut rand::thread_rng()).unwrap();
+	selection(kid)
+}
 
-    // for nod in k {
-    //     println!("{:#?}", nod.state)
-    // }
+// Explore first next play until the game is over
+// or there is no plays left to select
+fn simulation (state: &Board, last_move: &Coords) -> i8 {
 
-    // for t in 0..100 {
-
-    // let mut path: Vec<u16> = Vec::new();
-
-	let mut i = 0;
-
-	// Monte carlo loop
-	while i < 1000
-	 {
-
-		//Selection
-		let mut path = find_good_node(&tree.root());
-		// println!("path: {:#?}", path);
-		
-		let mut expand_node = tree.get_mut(path[0]).unwrap();
-		// path.push(expand_node);
-		let legal_plays = expand_node.value().state.legal_plays();
-		if legal_plays.len() == 0 {
-			continue;
-		}
-
-		// expansion
-		let mut ids = vec![];
-		for _ in 0..3{
-			let simulation_root_node_coords = legal_plays.choose(&mut rand::thread_rng()).unwrap();
-			let index = legal_plays.iter().position(|x| *x == *simulation_root_node_coords).unwrap();
-			legal_plays.remove(index);
-		//we deref expand node values twice, once for legal plays the other to get the board, maybe can do once
-			let new_board = expand_node.value().state.next_state(simulation_root_node_coords);
-
-			let mc_child_node4 = McNode::new(new_board, new_board.current_player());
-			let mut_id = expand_node.append(mc_child_node4);
-			ids.push((mut_id, simulation_root_node_coords));
-
-		}
-		
-		let tchoice = ids.choose(&mut rand::thread_rng()).unwrap();
-		let choice = tchoice.clone();
-		path.push(choice.0.id());
-		// println!("this is the treeeeeeee {:?}",tree );
-		// new_board.display();
-		let won = gamesim(*choice);
-		println!("{:?} player WON",won );
-
-		
-		for node_id in path {
-			let mut mut_ref = tree.get_mut(node_id).unwrap();
-			if won == mut_ref.value().player {
-				mut_ref.value().num_wins += 1;
-			}
-			mut_ref.value().num_plays += 1;
-		}
-		
-
-		i += 1;
-	}
-	// let tmp = tree.get_mut(path[0]).unwrap();
-	println!("this is the treeeeeee {:?}", tree);
-
-	fn gamesim(choice: (NodeMut<McNode>,Coords)) -> i8 {
-		let start = choice.0.value().state;
-		if start.if_over(){
-			return 0;
-		}
-		let mut board = start.clone();
-		let mut winner = start.winner(&choice.1);
-		// let mut play = (0,0);
-		while winner == 0 {
-			if board.if_over(){
-				return 0;
-			}
-			//if no legal plays then its a tie, so you dont haev to check for "if over"
-			let plays = board.legal_plays();
-			let play = plays.choose(&mut rand::thread_rng()).unwrap();
-			//optimize this next state to maybe mutate the copy you give it instead of cloning 
-			board = board.next_state(play);
-
-			winner = board.winner(play);
-			
-
-		}
+	// coords: Mock
+	let winner = state.winner(last_move);
+	if winner != 0 {
 		return winner;
 	}
-	// println!("node to expand {:?}",expand_node );
 
-	// println!("simulation_root_node_coords {:?}",simulation_root_node_coords );
-	    // let a:i32 = 0;
-    // let b = 1;
+	// Mock: always use first possible play
+	let legal_plays = state.legal_plays();
+	if legal_plays.is_empty() {
+		return winner;
+	}
+	let random_move = legal_plays.choose(&mut rand::thread_rng()).unwrap();
+	simulation(&state.next_state(&random_move), &random_move)
+}
 
-    // if a.is_some() {
-    //     println!("1");
-    // }
-    // }
+// Add all possible nodes to the tree
+// Expand every nodes there is
+fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
+	let value = node.value();
+	let state = value.state;
+	let player = value.player;
+	let legal_plays = state.legal_plays();
+	let child_player = 3 - player;
+	for coords in legal_plays.into_iter() {
+		let child_state = state.next_state(&coords);
+		let child = McNode::new(child_state, child_player);
+		node.append(child);
+	}
+	node
+}
+
+// mock: return first avalaible node
+fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
+	let best_node = root_node.children()
+	.max_by(|a, b| {
+		let value_a = a.value();
+		let value_b = b.value();
+		let score_a = (value_a.num_wins as f32 / value_a.num_plays as f32);
+		let score_b = (value_b.num_wins as f32 / value_b.num_plays as f32);
+		return score_a.partial_cmp(&score_b).unwrap_or(1.cmp(&1))
+	});
+	match best_node {
+		None => Err(String::from("No avalaible nodes")),
+		Some(v) => Ok(v.value().state)
+	}
+}
+
+fn monte_carlo(mut tree: Tree<McNode>, player: i8) -> Result<Coords, String> {
+	let n_run = 150;
+	let opponent = 3 - player; 
+
+	for i in 0..=n_run {
+		let selected_node_id = selection(tree.root());
+		let mut selected_node = tree.get_mut(selected_node_id).unwrap();
+		selected_node = expand(selected_node);
+		let winner = simulation(&selected_node.value().state, &(0, 0)); // Not sure about the coords
+		let win = if winner == opponent { 0 } else { 1 }; // Pat is worth a victory for now
+		back_propagation(selected_node, win);
+	}
+
+	match choose_best_move(tree.root()) {
+		Err(error_message) => Err(error_message),
+		Ok(best_board) => Ok(tree.root().value().state.coords(&best_board))
+	}
+}
+
+fn main() {
+    let board: Board = [
+		['.', '.', '.'],
+		['.', '.', '.'],
+		['.', '.', '.']
+	];
+
+	// ai_vs_ai(board, 1)
+	pve(board, 1)
+}
+
+fn ai_vs_ai (board: Board, player: i8) {
+
+	let tree = tree!(McNode::new(board, player));
+	match monte_carlo(tree, player) {
+		Ok(best_move) => {
+			let new_board = board.next_state(&best_move);
+			new_board.display();
+			let winner = new_board.winner(&best_move);
+			if (winner != 0) {
+				return println!("player {} wins", winner)
+			}
+			ai_vs_ai(new_board, 3 - player)
+		},
+		Err(error_message) => println!("{}", error_message)
+	}
+}
+
+// Get string from standard input
+fn get_player_input() -> Result<String, String> {
+	
+    let mut s = String::new();
+    print!("Enter Coords (Ex: 1 1): ");
     
-    // println!("{:#?}",tree);
-    // println!("{:#?}",k);
-	let best = tree.root().children();
-	let best2 = best.clone();
-	// for k in best {
-	// 	println!("this is the values {:?}",k.value() );
-	// }
-	let turn = best.map(|node| (node.value().num_plays, node.value().num_wins));
-	let turn2 = best2.map(|node| ((node.value().num_wins as f32 / node.value().num_plays as f32) * 1000.0) as i64) ;
-	// let fin = turn2.max().unwrap();
-	// println!("fin {:?} ",fin);
-	for x in turn2 {
-		println!("this {:?}", x);
-	}
-	for x in turn {
-		println!("this {:?}", x);
-	}
-	// println!("fin {:?}", fin);
-	// let fin = turn.max();
+	let _=stdout().flush();
+    stdin().read_line(&mut s).expect("Did not enter a correct string");
+    
+	if let Some('\n') = s.chars().next_back() {
+        s.pop();
+    }
+    if let Some('\r') = s.chars().next_back() {
+        s.pop();
+    }
+	Ok(s)
+}
 
+// parse string and return coords
+fn input_to_coords (s: &String) -> Result<Coords, String> {
+	let split_str = s.split(' ');
+	let vec: Vec<&str> = split_str.collect();
+	if vec.len() < 2 {
+		println!("Invalid coords format");
+		return get_player_move();
+	}
+	
+	let x = match vec[0].parse::<i8>() {
+		Ok(v) => v,
+		Err(error_message) => { return Err(error_message.to_string()); }
+	};
+	
+	let y = match vec[1].parse::<i8>() {
+		Ok(v) => v,
+		Err(error_message) => { return Err(error_message.to_string()); }
+	};
+	Ok((y,x))
+}
+
+fn get_player_move() -> Result<Coords, String> {
+
+	match get_player_input() {
+		Ok(s) => {
+			match input_to_coords(&s) {
+				Ok(coords) => Ok(coords),
+				Err(error_message) => {
+					println!("Invalid coords format");
+					return get_player_move();
+				}
+			}
+		},
+		Err(error_message) => {
+			println!("Invalid coords format");
+			return get_player_move();
+		}
+	}
+}
+
+fn pve (board: Board, player: i8) {
+	board.display();
+	let tree = tree!(McNode::new(board, player));
+	let mut next_move = (0,0);
+	if player == 1 {
+		match get_player_move() {
+			Ok(player_move) => next_move = player_move,
+			Err(error_message) => println!("{}", error_message)
+		}
+	} else {
+		match monte_carlo(tree, player) {
+			Ok(best_move) => next_move = best_move,
+			Err(error_message) => println!("{}", error_message)
+		}
+	}
+	let new_board = board.next_state(&next_move);
+	let winner = new_board.winner(&next_move);
+	if (winner != 0) {
+		return println!("player {} wins", winner)
+	}
+	pve(new_board, 3 - player)
 }
