@@ -258,7 +258,6 @@ impl McNode {
     
 }
 
-// Mock: not doing anything
 // Update all nodes (num_visited, num_win)
 fn back_propagation (mut node: NodeMut<McNode>, win: u16) {
 	let value = node.value();
@@ -301,6 +300,7 @@ fn simulation (state: &Board, last_move: &Coords) -> i8 {
 }
 
 // Add all possible nodes to the tree
+// Expand every nodes there is
 fn expand (mut node: NodeMut<McNode>) -> NodeMut<McNode> {
 	let value = node.value();
 	let state = value.state;
@@ -321,7 +321,6 @@ fn choose_best_move (root_node: NodeRef<McNode>) -> Result<Board, String> {
 	.max_by(|a, b| {
 		let value_a = a.value();
 		let value_b = b.value();
-		println!("plays: {:?}, wins: {:?}", value_b.num_plays, value_b.num_wins);
 		let score_a = (value_a.num_wins as f32 / value_a.num_plays as f32);
 		let score_b = (value_b.num_wins as f32 / value_b.num_plays as f32);
 		return score_a.partial_cmp(&score_b).unwrap_or(1.cmp(&1))
