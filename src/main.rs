@@ -379,10 +379,11 @@ fn ai_vs_ai (board: Board, player: i8) {
 	}
 }
 
-fn get_player_move(mut tree: Tree<McNode>) -> Result<Coords, String> {
+// Get string from standard input
+fn get_player_input() -> Result<String, String> {
 	
     let mut s = String::new();
-    print!("Enter Coords for your next move: ");
+    print!("Enter Coords (Ex: 1 1): ");
     
 	let _=stdout().flush();
     stdin().read_line(&mut s).expect("Did not enter a correct string");
@@ -393,11 +394,47 @@ fn get_player_move(mut tree: Tree<McNode>) -> Result<Coords, String> {
     if let Some('\r') = s.chars().next_back() {
         s.pop();
     }
+	Ok(s)
+}
+
+// parse string and return coords
+fn input_to_coords (s: &String) -> Result<Coords, String> {
 	let split_str = s.split(' ');
 	let vec: Vec<&str> = split_str.collect();
-	let x = vec[0].parse::<i8>().unwrap();
-	let y = vec[1].parse::<i8>().unwrap();
+	if vec.len() < 2 {
+		println!("Invalid coords format");
+		return get_player_move();
+	}
+	
+	let x = match vec[0].parse::<i8>() {
+		Ok(v) => v,
+		Err(error_message) => { return Err(error_message.to_string()); }
+	};
+	
+	let y = match vec[1].parse::<i8>() {
+		Ok(v) => v,
+		Err(error_message) => { return Err(error_message.to_string()); }
+	};
 	Ok((y,x))
+}
+
+fn get_player_move() -> Result<Coords, String> {
+
+	match get_player_input() {
+		Ok(s) => {
+			match input_to_coords(&s) {
+				Ok(coords) => Ok(coords),
+				Err(error_message) => {
+					println!("Invalid coords format");
+					return get_player_move();
+				}
+			}
+		},
+		Err(error_message) => {
+			println!("Invalid coords format");
+			return get_player_move();
+		}
+	}
 }
 
 fn pve (board: Board, player: i8) {
@@ -405,7 +442,7 @@ fn pve (board: Board, player: i8) {
 	let tree = tree!(McNode::new(board, player));
 	let mut next_move = (0,0);
 	if player == 1 {
-		match get_player_move(tree) {
+		match get_player_move() {
 			Ok(player_move) => next_move = player_move,
 			Err(error_message) => println!("{}", error_message)
 		}
