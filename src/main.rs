@@ -357,7 +357,8 @@ fn main() {
 		['.', '.', '.']
 	];
 
-	ai_vs_ai(board, 1)
+	// ai_vs_ai(board, 1)
+	pve(board, 1)
 }
 
 fn ai_vs_ai (board: Board, player: i8) {
@@ -375,4 +376,31 @@ fn ai_vs_ai (board: Board, player: i8) {
 		},
 		Err(error_message) => println!("{}", error_message)
 	}
+}
+
+fn get_player_move(mut tree: Tree<McNode>) -> Result<Coords, String> {
+	return Ok((0,0));
+}
+
+fn pve (board: Board, player: i8) {
+	let tree = tree!(McNode::new(board, player));
+	let mut next_move = (0,0);
+	if player == 1 {
+		match get_player_move(tree) {
+			Ok(player_move) => next_move = player_move,
+			Err(error_message) => println!("{}", error_message)
+		}
+	} else {
+		match monte_carlo(tree, player) {
+			Ok(best_move) => next_move = best_move,
+			Err(error_message) => println!("{}", error_message)
+		}
+	}
+	let new_board = board.next_state(&next_move);
+	new_board.display();
+	let winner = new_board.winner(&next_move);
+	if (winner != 0) {
+		return println!("player {} wins", winner)
+	}
+	pve(new_board, 3 - player)
 }
