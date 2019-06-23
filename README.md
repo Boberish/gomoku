@@ -8,6 +8,7 @@ Board:
 
 Game:
 - pve mode
+	- [x] v1 (terminal)
 - pvp assist mode (AI giving advice to the players)
 
 GUI
